@@ -1,0 +1,59 @@
+@page "/capture/{PlanogramId}"
+@inject PlanogramDataService PlanogramData
+@inject PhotoStoreService PhotoStore
+@inject NavigationManager Navigation
+
+<PageTitle>Capture — @(_planogram?.Name ?? "Planogram")</PageTitle>
+
+@if (_planogram is null)
+{
+    <p>Planogram not found.</p>
+    <a href="/">Back to home</a>
+}
+else if (_currentSegmentIndex >= _planogram.Segments.Count)
+{
+    <div class="capture-done">
+        <h1>All segments captured</h1>
+        <p>You have taken photos for all segments in <strong>@_planogram.Name</strong>.</p>
+        <div class="done-actions">
+            <button class="btn-primary" @onclick="BackToHome">Back to planograms</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="capture-page">
+        <div class="capture-header">
+            <a href="/" class="back-link">← Planograms</a>
+        </div>
+
+        <CameraCapture Planogram="_planogram"
+                       CurrentIndex="_currentSegmentIndex"
+                       OnSegmentCaptured="OnSegmentCaptured" />
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string PlanogramId { get; set; } = "";
+
+    private Planogram? _planogram;
+    private int _currentSegmentIndex;
+
+    protected override void OnInitialized()
+    {
+        _planogram = PlanogramData.GetPlanogram(PlanogramId);
+        _currentSegmentIndex = 0;
+    }
+
+    private void OnSegmentCaptured(int capturedIndex)
+    {
+        _currentSegmentIndex = capturedIndex + 1;
+        StateHasChanged();
+    }
+
+    private void BackToHome()
+    {
+        Navigation.NavigateTo("/");
+    }
+}

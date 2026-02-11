@@ -1,0 +1,109 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+@inject PhotoStoreService PhotoStore
+@implements IAsyncDisposable
+
+<div class="camera-capture">
+    <div class="camera-context">
+        <span class="planogram-name">@Planogram?.Name</span>
+        <span class="segment-info">Segment @(CurrentIndex + 1) of @(Planogram?.Segments.Count ?? 0): @CurrentSegment?.Name</span>
+    </div>
+
+    @if (CameraError is not null)
+    {
+        <div class="camera-error">@CameraError</div>
+    }
+    else if (Planogram is not null && CurrentSegment is not null)
+    {
+        <div class="camera-view">
+            <video id="@VideoElementId" autoplay playsinline muted></video>
+            @if (!_cameraStarted)
+            {
+                <div class="camera-loading">Starting camera…</div>
+            }
+            <div class="camera-actions">
+                <button class="btn-capture" @onclick="CapturePhoto" disabled="@(IsCapturing || !_cameraStarted)">
+                    @(IsCapturing ? "Capturing…" : "Take photo")
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Planogram? Planogram { get; set; }
+    [Parameter] public int CurrentIndex { get; set; }
+    [Parameter] public EventCallback<int> OnSegmentCaptured { get; set; }
+
+    private const string VideoElementId = "planogram-camera-video";
+    private DotNetObjectReference<CameraCapture>? _dotNetRef;
+    private bool _cameraStarted;
+    private string? _cameraError;
+    private bool _isCapturing;
+
+    private Segment? CurrentSegment => Planogram?.Segments.ElementAtOrDefault(CurrentIndex);
+    private string? CameraError => _cameraError;
+    private bool IsCapturing => _isCapturing;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && Planogram is not null && CurrentSegment is not null)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await StartCameraAsync();
+        }
+    }
+
+    private async Task StartCameraAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("PlanogramCamera.startCamera", VideoElementId);
+            _cameraStarted = true;
+            _cameraError = null;
+        }
+        catch (Exception ex)
+        {
+            _cameraError = $"Camera error: {ex.Message}";
+        }
+        StateHasChanged();
+    }
+
+    private async Task CapturePhoto()
+    {
+        if (CurrentSegment is null || Planogram is null || _isCapturing) return;
+        _isCapturing = true;
+        StateHasChanged();
+        try
+        {
+            await JS.InvokeVoidAsync("PlanogramCamera.capturePhoto", VideoElementId, _dotNetRef);
+        }
+        finally
+        {
+            _isCapturing = false;
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    public void OnPhotoCaptured(string base64ImageData)
+    {
+        if (Planogram is null || CurrentSegment is null) return;
+        PhotoStore.StorePhoto(Planogram.Id, CurrentSegment.Id, base64ImageData);
+        InvokeAsync(async () =>
+        {
+            await OnSegmentCaptured.InvokeAsync(CurrentIndex);
+            StateHasChanged();
+        });
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("PlanogramCamera.stopCamera");
+        }
+        catch { /* ignore when JS not available */ }
+        _dotNetRef?.Dispose();
+    }
+}
