@@ -1,0 +1,77 @@
+@inject PhotoStoreService PhotoStore
+@inject IJSRuntime JS
+
+@if (Planogram is not null)
+{
+    var photos = GetPhotos();
+    <div class="photo-downloads">
+        <div class="downloads-header">
+            <h2>Download photos</h2>
+            <button class="btn-secondary" @onclick="DownloadAll" disabled="@(photos.Count == 0)">
+                Download all
+            </button>
+        </div>
+        @if (photos.Count == 0)
+        {
+            <p class="downloads-empty">No photos found for this planogram.</p>
+        }
+        else
+        {
+            <div class="downloads-grid">
+                @foreach (var item in photos)
+                {
+                    <div class="download-card">
+                        <img src="@item.DataUrl" alt="Photo for @item.SegmentName" />
+                        <div class="download-meta">
+                            <span class="segment-name">@item.SegmentName</span>
+                            <button class="btn-link" @onclick="() => DownloadOne(item)">
+                                Download
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public Planogram? Planogram { get; set; }
+
+    private List<PhotoItem> GetPhotos()
+    {
+        if (Planogram is null) return new List<PhotoItem>();
+        return Planogram.Segments
+            .Select(segment => new PhotoItem
+            {
+                SegmentId = segment.Id,
+                SegmentName = segment.Name,
+                DataUrl = PhotoStore.GetPhoto(Planogram.Id, segment.Id) ?? string.Empty
+            })
+            .Where(item => !string.IsNullOrWhiteSpace(item.DataUrl))
+            .ToList();
+    }
+
+    private async Task DownloadOne(PhotoItem item)
+    {
+        if (Planogram is null) return;
+        var filename = $"{Planogram.Name}-{item.SegmentName}.jpg".Replace(' ', '_');
+        await JS.InvokeVoidAsync("PlanogramCamera.downloadDataUrl", filename, item.DataUrl);
+    }
+
+    private async Task DownloadAll()
+    {
+        var photos = GetPhotos();
+        foreach (var item in photos)
+        {
+            await DownloadOne(item);
+        }
+    }
+
+    private sealed class PhotoItem
+    {
+        public string SegmentId { get; set; } = string.Empty;
+        public string SegmentName { get; set; } = string.Empty;
+        public string DataUrl { get; set; } = string.Empty;
+    }
+}

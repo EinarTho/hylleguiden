@@ -25,6 +25,8 @@ window.PlanogramCamera = {
                         video.play();
                         resolve();
                     } else {
+                        stream.getTracks().forEach(track => track.stop());
+                        this._stream = null;
                         reject(new Error('Video element not found.'));
                     }
                 })
@@ -62,5 +64,14 @@ window.PlanogramCamera = {
                 resolve(dataUrl);
             }
         });
+    },
+
+    downloadDataUrl: function (filename, dataUrl) {
+        const link = document.createElement('a');
+        link.href = dataUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 };
