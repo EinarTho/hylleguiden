@@ -64,14 +64,15 @@
     object-fit: cover;
 }
 
-/* Mobile: camera 88% width, reduced height */
+/* Mobile: camera 88% width, height in viewport units (dvh) so it applies on phones */
 @media (max-width: 768px), (max-height: 600px) {
     .camera-view {
         width: 88%;
         max-width: min(88%, calc(100vw - 1rem));
-        flex: 1;
+        height: 42dvh;
+        max-height: 42dvh;
         min-height: 0;
-        max-height: 45%;
+        flex: none;
         display: flex;
         flex-direction: column;
     }
