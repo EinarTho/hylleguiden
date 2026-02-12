@@ -31,6 +31,7 @@
 @code {
     private void StartCapture(string planogramId)
     {
-        Navigation.NavigateTo(new Uri(Navigation.BaseUri, $"capture/{planogramId}").ToString());
+        var url = $"{Navigation.BaseUri.TrimEnd('/')}/capture/{planogramId}";
+        Navigation.NavigateTo(url);
     }
 }

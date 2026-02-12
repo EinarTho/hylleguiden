@@ -15,8 +15,30 @@
 </head>
 
 <body>
-    <!-- 404_REDIRECT -->
-    <script>(function(){var r=sessionStorage.redirect;if(r){sessionStorage.removeItem('redirect');var base=document.querySelector('base');var basePath=(base?base.getAttribute('href')||'/':'/').replace(/\/$/,'')||'/';var u=new URL(r,location.origin);if(basePath!=='/'&&u.pathname!==basePath&&!u.pathname.startsWith(basePath+'/')){r=new URL(basePath+u.pathname,location.origin).href;}window.history.replaceState(null,'',r);}})();</script>
+    <!-- 404_REDIRECT: only restore when stored URL is a valid app route (prevents wrong redirect on Take photo etc.) -->
+    <script>
+    (function(){
+      var r = sessionStorage.redirect;
+      if (!r) return;
+      sessionStorage.removeItem('redirect');
+      try {
+        var base = document.querySelector('base');
+        var basePath = (base ? base.getAttribute('href') || '/' : '/').replace(/\/$/, '') || '/';
+        var u = new URL(r, location.origin);
+        if (u.origin !== location.origin) return;
+        var path = u.pathname;
+        if (basePath !== '/' && path !== basePath && path !== basePath + '/' && !path.startsWith(basePath + '/'))
+          r = new URL(basePath + '/' + path.replace(/^\//, ''), location.origin).href;
+        else
+          r = u.href;
+        var normPath = new URL(r, location.origin).pathname;
+        var isBase = normPath === basePath || normPath === basePath + '/' || normPath === '/' || normPath === '';
+        var isCapture = normPath.startsWith(basePath + '/capture/') || (basePath === '/' && normPath.startsWith('/capture/'));
+        if (!isBase && !isCapture) return;
+        window.history.replaceState(null, '', r);
+      } catch (e) {}
+    })();
+    </script>
     <div id="app">
         <svg class="loading-progress">
             <circle r="40%" cx="50%" cy="50%" />
