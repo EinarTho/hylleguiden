@@ -60,18 +60,18 @@
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    max-height: 52vh;
+    max-height: 45vh;
     object-fit: cover;
 }
 
-/* Mobile: camera 88% width, 80% height */
+/* Mobile: camera 88% width, reduced height */
 @media (max-width: 768px), (max-height: 600px) {
     .camera-view {
         width: 88%;
         max-width: min(88%, calc(100vw - 1rem));
         flex: 1;
         min-height: 0;
-        max-height: 80%;
+        max-height: 65%;
         display: flex;
         flex-direction: column;
     }
