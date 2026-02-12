@@ -4,11 +4,6 @@
 @implements IAsyncDisposable
 
 <div class="camera-capture">
-    <div class="camera-info">
-        <span class="camera-info-name">@Planogram?.Name</span>
-        <span class="camera-info-segment">Segment @(CurrentIndex + 1) of @(Planogram?.NumberOfSegments ?? 0)</span>
-    </div>
-
     @if (CameraError is not null)
     {
         <MudAlert Severity="Severity.Error" Elevation="0">@CameraError</MudAlert>
@@ -33,6 +28,10 @@
                     @(IsCapturing ? "Capturing…" : "Take photo")
                 </MudButton>
             </div>
+        </div>
+        <div class="camera-info">
+            <span class="camera-info-name">@Planogram.Name</span>
+            <span class="camera-info-segment">Segment @(CurrentIndex + 1) of @Planogram.NumberOfSegments</span>
         </div>
     }
 </div>
