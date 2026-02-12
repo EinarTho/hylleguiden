@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Planogram Photo App</title>
     <base href="/" />
     <link rel="preload" id="webassembly" />
@@ -16,7 +16,7 @@
 
 <body>
     <!-- 404_REDIRECT -->
-    <script>(function(){var r=sessionStorage.redirect;if(r){sessionStorage.removeItem('redirect');window.history.replaceState(null,'',r);}})();</script>
+    <script>(function(){var r=sessionStorage.redirect;if(r){sessionStorage.removeItem('redirect');var base=document.querySelector('base');var basePath=(base?base.getAttribute('href')||'/':'/').replace(/\/$/,'')||'/';var u=new URL(r,location.origin);if(basePath!=='/'&&u.pathname!==basePath&&!u.pathname.startsWith(basePath+'/')){r=new URL(basePath+u.pathname,location.origin).href;}window.history.replaceState(null,'',r);}})();</script>
     <div id="app">
         <svg class="loading-progress">
             <circle r="40%" cx="50%" cy="50%" />
