@@ -49,7 +49,7 @@
     overflow: hidden;
     background: #000;
     width: 100%;
-    max-width: 100%;
+    max-width: min(100%, 100vw);
     min-width: 0;
     box-sizing: border-box;
 }

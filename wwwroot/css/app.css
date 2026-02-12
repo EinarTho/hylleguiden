@@ -1,3 +1,13 @@
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+#app, .app-layout, .mud-main-content {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
 .app-layout {
     min-height: 100vh;
     background: #f8fafc;
