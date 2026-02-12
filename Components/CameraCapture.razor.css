@@ -64,6 +64,18 @@
     object-fit: cover;
 }
 
+/* Tablet: camera uses more space (wider and taller) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .camera-view {
+        width: 94%;
+        max-width: min(94%, calc(100vw - 1.5rem));
+    }
+
+    .camera-view video {
+        max-height: 58vh;
+    }
+}
+
 /* Mobile: camera 88% width, height in viewport units (dvh) so it applies on phones */
 @media (max-width: 768px), (max-height: 600px) {
     .camera-view {
