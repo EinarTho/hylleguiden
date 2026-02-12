@@ -60,7 +60,7 @@
     width: 100%;
     max-width: 100%;
     min-width: 0;
-    max-height: 38vh;
+    max-height: 32vh;
     object-fit: cover;
 }
 
@@ -71,7 +71,7 @@
         max-width: min(88%, calc(100vw - 1rem));
         flex: 1;
         min-height: 0;
-        max-height: 55%;
+        max-height: 45%;
         display: flex;
         flex-direction: column;
     }
