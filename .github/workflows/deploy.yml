@@ -28,8 +28,9 @@ jobs:
       - name: Publish
         run: dotnet publish -c Release -p:BasePath=/hylleguiden/ -o ./publish
 
-      - name: Add SPA fallback and disable Jekyll
+      - name: Add SPA fallback, set base href, and disable Jekyll
         run: |
+          sed -i 's#<base href="/" />#<base href="/hylleguiden/" />#' ./publish/wwwroot/index.html
           cp ./publish/wwwroot/index.html ./publish/wwwroot/404.html
           touch ./publish/wwwroot/.nojekyll
 
