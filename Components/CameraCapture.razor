@@ -3,41 +3,39 @@
 @inject PhotoStoreService PhotoStore
 @implements IAsyncDisposable
 
-<MudPaper Class="camera-capture" Elevation="1">
-    <MudStack Spacing="1">
-        <MudPaper Class="camera-context" Elevation="0">
-            <MudText Typo="Typo.h6">@Planogram?.Name</MudText>
-            <MudText Typo="Typo.body2">Segment @(CurrentIndex + 1) of @(Planogram?.NumberOfSegments ?? 0)</MudText>
-        </MudPaper>
+<div class="camera-capture">
+    <div class="camera-info">
+        <span class="camera-info-name">@Planogram?.Name</span>
+        <span class="camera-info-segment">Segment @(CurrentIndex + 1) of @(Planogram?.NumberOfSegments ?? 0)</span>
+    </div>
 
-        @if (CameraError is not null)
-        {
-            <MudAlert Severity="Severity.Error" Elevation="0">@CameraError</MudAlert>
-        }
-        else if (Planogram is not null && Planogram.NumberOfSegments > 0)
-        {
-            <MudPaper Class="camera-view" Elevation="0">
-                <video id="@VideoElementId" autoplay playsinline muted></video>
-                @if (!_cameraStarted)
-                {
-                    <div class="camera-loading">
-                        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Medium" />
-                        <MudText Typo="Typo.body2">Starting camera…</MudText>
-                    </div>
-                }
-                <div class="camera-actions">
-                    <MudButton Color="Color.Primary"
-                               Variant="Variant.Filled"
-                               Disabled="@(IsCapturing || !_cameraStarted)"
-                               ButtonType="ButtonType.Button"
-                               OnClick="CapturePhoto">
-                        @(IsCapturing ? "Capturing…" : "Take photo")
-                    </MudButton>
+    @if (CameraError is not null)
+    {
+        <MudAlert Severity="Severity.Error" Elevation="0">@CameraError</MudAlert>
+    }
+    else if (Planogram is not null && Planogram.NumberOfSegments > 0)
+    {
+        <div class="camera-view">
+            <video id="@VideoElementId" autoplay playsinline muted></video>
+            @if (!_cameraStarted)
+            {
+                <div class="camera-loading">
+                    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Medium" />
+                    <MudText Typo="Typo.body2">Starting camera…</MudText>
                 </div>
-            </MudPaper>
-        }
-    </MudStack>
-</MudPaper>
+            }
+            <div class="camera-actions">
+                <MudButton Color="Color.Primary"
+                           Variant="Variant.Filled"
+                           Disabled="@(IsCapturing || !_cameraStarted)"
+                           ButtonType="ButtonType.Button"
+                           OnClick="CapturePhoto">
+                    @(IsCapturing ? "Capturing…" : "Take photo")
+                </MudButton>
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     [Parameter] public Planogram? Planogram { get; set; }
