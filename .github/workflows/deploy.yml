@@ -32,6 +32,7 @@ jobs:
         run: |
           sed -i 's#<base href="/" />#<base href="/hylleguiden/" />#' ./publish/wwwroot/index.html
           cp ./publish/wwwroot/index.html ./publish/wwwroot/404.html
+          sed -i 's|<!-- 404_REDIRECT -->|<script>sessionStorage.redirect=location.href;location.replace("/hylleguiden/");</script>|' ./publish/wwwroot/404.html
           touch ./publish/wwwroot/.nojekyll
 
       - name: Upload artifact
