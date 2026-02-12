@@ -4,23 +4,29 @@
 
 <PageTitle>Planogram Photo App</PageTitle>
 
-<div class="home-page">
-    <h1>Planogram Photo App</h1>
-    <p class="subtitle">Select a planogram to start taking segment photos.</p>
+<MudContainer MaxWidth="MaxWidth.Medium" Class="home-page">
+    <MudText Typo="Typo.h4">Planogram Photo App</MudText>
+    <MudText Typo="Typo.body2" Class="subtitle">Select a planogram to start taking segment photos.</MudText>
 
-    <div class="planogram-list">
+    <MudGrid Class="planogram-list" Spacing="3">
         @foreach (var planogram in PlanogramData.GetAllPlanograms())
         {
-            <div class="planogram-card">
-                <h2>@planogram.Name</h2>
-                <p class="segment-count">@planogram.Segments.Count segment(s)</p>
-                <button class="btn-start" @onclick="() => StartCapture(planogram.Id)">
-                    Start capture
-                </button>
-            </div>
+            <MudItem xs="12">
+                <MudCard Class="planogram-card" Elevation="1">
+                    <MudCardContent>
+                        <MudText Typo="Typo.h6">@planogram.Name</MudText>
+                        <MudText Typo="Typo.body2" Class="segment-count">@planogram.NumberOfSegments segment(s)</MudText>
+                    </MudCardContent>
+                    <MudCardActions>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => StartCapture(planogram.Id)">
+                            Start capture
+                        </MudButton>
+                    </MudCardActions>
+                </MudCard>
+            </MudItem>
         }
-    </div>
-</div>
+    </MudGrid>
+</MudContainer>
 
 @code {
     private void StartCapture(string planogramId)

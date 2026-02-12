@@ -47,6 +47,11 @@
     background: #000;
 }
 
+.download-media {
+    height: 120px;
+    background-size: cover;
+}
+
 .download-meta {
     display: flex;
     justify-content: space-between;

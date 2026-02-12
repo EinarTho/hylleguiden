@@ -5,34 +5,36 @@
 
 <PageTitle>Capture — @(_planogram?.Name ?? "Planogram")</PageTitle>
 
-@if (_planogram is null)
-{
-    <p>Planogram not found.</p>
-    <a href="/">Back to home</a>
-}
-else if (_currentSegmentIndex >= _planogram.Segments.Count)
-{
-    <div class="capture-done">
-        <h1>All segments captured</h1>
-        <p>You have taken photos for all segments in <strong>@_planogram.Name</strong>.</p>
-        <PhotoDownloads Planogram="_planogram" />
-        <div class="done-actions">
-            <button class="btn-primary" @onclick="BackToHome">Back to planograms</button>
-        </div>
-    </div>
-}
-else
-{
-    <div class="capture-page">
+<MudContainer MaxWidth="MaxWidth.Large" Class="capture-page">
+    @if (_planogram is null)
+    {
+        <MudAlert Severity="Severity.Error">Planogram not found.</MudAlert>
+        <MudButton Variant="Variant.Text" OnClick="BackToHome">Back to home</MudButton>
+    }
+    else if (_currentSegmentIndex >= _planogram.NumberOfSegments)
+    {
+        <MudPaper Class="capture-done" Elevation="1">
+            <MudText Typo="Typo.h5">All segments captured</MudText>
+            <MudText Typo="Typo.body2">You have taken photos for all segments in <strong>@_planogram.Name</strong>.</MudText>
+            <PhotoDownloads Planogram="_planogram" />
+            <div class="done-actions">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="BackToHome">Back to planograms</MudButton>
+            </div>
+        </MudPaper>
+    }
+    else
+    {
         <div class="capture-header">
-            <a href="/" class="back-link">← Planograms</a>
+            <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="BackToHome">
+                Planograms
+            </MudButton>
         </div>
 
         <CameraCapture Planogram="_planogram"
                        CurrentIndex="_currentSegmentIndex"
                        OnSegmentCaptured="OnSegmentCaptured" />
-    </div>
-}
+    }
+</MudContainer>
 
 @code {
     [Parameter]

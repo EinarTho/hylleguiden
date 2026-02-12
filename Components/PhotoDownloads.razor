@@ -4,35 +4,37 @@
 @if (Planogram is not null)
 {
     var photos = GetPhotos();
-    <div class="photo-downloads">
+    <MudPaper Class="photo-downloads" Elevation="0">
         <div class="downloads-header">
-            <h2>Download photos</h2>
-            <button class="btn-secondary" @onclick="DownloadAll" disabled="@(photos.Count == 0)">
+            <MudText Typo="Typo.h6">Download photos</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="DownloadAll" Disabled="@(photos.Count == 0)">
                 Download all
-            </button>
+            </MudButton>
         </div>
         @if (photos.Count == 0)
         {
-            <p class="downloads-empty">No photos found for this planogram.</p>
+            <MudText Typo="Typo.body2" Class="downloads-empty">No photos found for this planogram.</MudText>
         }
         else
         {
-            <div class="downloads-grid">
+            <MudGrid Class="downloads-grid" Spacing="2">
                 @foreach (var item in photos)
                 {
-                    <div class="download-card">
-                        <img src="@item.DataUrl" alt="Photo for @item.SegmentName" />
-                        <div class="download-meta">
-                            <span class="segment-name">@item.SegmentName</span>
-                            <button class="btn-link" @onclick="() => DownloadOne(item)">
-                                Download
-                            </button>
-                        </div>
-                    </div>
+                    <MudItem xs="12" sm="6" md="4" lg="3">
+                        <MudCard Class="download-card" Elevation="1">
+                            <MudCardMedia Image="@item.DataUrl" Class="download-media" />
+                            <MudCardActions Class="download-meta">
+                                <MudText Typo="Typo.caption" Class="segment-name">@item.SegmentName</MudText>
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="() => DownloadOne(item)">
+                                    Download
+                                </MudButton>
+                            </MudCardActions>
+                        </MudCard>
+                    </MudItem>
                 }
-            </div>
+            </MudGrid>
         }
-    </div>
+    </MudPaper>
 }
 
 @code {
@@ -41,12 +43,12 @@
     private List<PhotoItem> GetPhotos()
     {
         if (Planogram is null) return new List<PhotoItem>();
-        return Planogram.Segments
-            .Select(segment => new PhotoItem
+        return Enumerable.Range(1, Planogram.NumberOfSegments)
+            .Select(segmentNumber => new PhotoItem
             {
-                SegmentId = segment.Id,
-                SegmentName = segment.Name,
-                DataUrl = PhotoStore.GetPhoto(Planogram.Id, segment.Id) ?? string.Empty
+                SegmentNumber = segmentNumber,
+                SegmentName = $"Segment {segmentNumber}",
+                DataUrl = PhotoStore.GetPhoto(Planogram.Id, segmentNumber) ?? string.Empty
             })
             .Where(item => !string.IsNullOrWhiteSpace(item.DataUrl))
             .ToList();
@@ -70,7 +72,7 @@
 
     private sealed class PhotoItem
     {
-        public string SegmentId { get; set; } = string.Empty;
+        public int SegmentNumber { get; set; }
         public string SegmentName { get; set; } = string.Empty;
         public string DataUrl { get; set; } = string.Empty;
     }

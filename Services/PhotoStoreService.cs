@@ -3,29 +3,29 @@ using PlanogramPhotoApp.Models;
 namespace PlanogramPhotoApp.Services;
 
 /// <summary>
-/// In-memory store for segment photos. Key: (PlanogramId, SegmentId) -> base64 image data.
+/// In-memory store for segment photos. Key: (PlanogramId, SegmentNumber) -> base64 image data.
 /// </summary>
 public class PhotoStoreService
 {
-    private readonly Dictionary<(string PlanogramId, string SegmentId), string> _photos = new();
+    private readonly Dictionary<(string PlanogramId, int SegmentNumber), string> _photos = new();
 
-    public void StorePhoto(string planogramId, string segmentId, string base64ImageData)
+    public void StorePhoto(string planogramId, int segmentNumber, string base64ImageData)
     {
-        _photos[(planogramId, segmentId)] = base64ImageData;
+        _photos[(planogramId, segmentNumber)] = base64ImageData;
     }
 
-    public string? GetPhoto(string planogramId, string segmentId)
+    public string? GetPhoto(string planogramId, int segmentNumber)
     {
-        return _photos.TryGetValue((planogramId, segmentId), out var data) ? data : null;
+        return _photos.TryGetValue((planogramId, segmentNumber), out var data) ? data : null;
     }
 
-    public IReadOnlyDictionary<(string PlanogramId, string SegmentId), string> GetAllPhotos() => _photos;
+    public IReadOnlyDictionary<(string PlanogramId, int SegmentNumber), string> GetAllPhotos() => _photos;
 
-    public IEnumerable<string> GetSegmentIdsWithPhotos(string planogramId)
+    public IEnumerable<int> GetSegmentNumbersWithPhotos(string planogramId)
     {
         return _photos.Keys
             .Where(k => k.PlanogramId == planogramId)
-            .Select(k => k.SegmentId)
+            .Select(k => k.SegmentNumber)
             .ToList();
     }
 

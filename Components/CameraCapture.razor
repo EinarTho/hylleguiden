@@ -3,32 +3,40 @@
 @inject PhotoStoreService PhotoStore
 @implements IAsyncDisposable
 
-<div class="camera-capture">
-    <div class="camera-context">
-        <span class="planogram-name">@Planogram?.Name</span>
-        <span class="segment-info">Segment @(CurrentIndex + 1) of @(Planogram?.Segments.Count ?? 0): @CurrentSegment?.Name</span>
-    </div>
+<MudPaper Class="camera-capture" Elevation="1">
+    <MudStack Spacing="1">
+        <MudPaper Class="camera-context" Elevation="0">
+            <MudText Typo="Typo.h6">@Planogram?.Name</MudText>
+            <MudText Typo="Typo.body2">Segment @(CurrentIndex + 1) of @(Planogram?.NumberOfSegments ?? 0)</MudText>
+        </MudPaper>
 
-    @if (CameraError is not null)
-    {
-        <div class="camera-error">@CameraError</div>
-    }
-    else if (Planogram is not null && CurrentSegment is not null)
-    {
-        <div class="camera-view">
-            <video id="@VideoElementId" autoplay playsinline muted></video>
-            @if (!_cameraStarted)
-            {
-                <div class="camera-loading">Starting camera…</div>
-            }
-            <div class="camera-actions">
-                <button class="btn-capture" @onclick="CapturePhoto" disabled="@(IsCapturing || !_cameraStarted)">
-                    @(IsCapturing ? "Capturing…" : "Take photo")
-                </button>
-            </div>
-        </div>
-    }
-</div>
+        @if (CameraError is not null)
+        {
+            <MudAlert Severity="Severity.Error" Elevation="0">@CameraError</MudAlert>
+        }
+        else if (Planogram is not null && Planogram.NumberOfSegments > 0)
+        {
+            <MudPaper Class="camera-view" Elevation="0">
+                <video id="@VideoElementId" autoplay playsinline muted></video>
+                @if (!_cameraStarted)
+                {
+                    <div class="camera-loading">
+                        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Medium" />
+                        <MudText Typo="Typo.body2">Starting camera…</MudText>
+                    </div>
+                }
+                <div class="camera-actions">
+                    <MudButton Color="Color.Primary"
+                               Variant="Variant.Filled"
+                               Disabled="@(IsCapturing || !_cameraStarted)"
+                               OnClick="CapturePhoto">
+                        @(IsCapturing ? "Capturing…" : "Take photo")
+                    </MudButton>
+                </div>
+            </MudPaper>
+        }
+    </MudStack>
+</MudPaper>
 
 @code {
     [Parameter] public Planogram? Planogram { get; set; }
@@ -41,13 +49,12 @@
     private string? _cameraError;
     private bool _isCapturing;
 
-    private Segment? CurrentSegment => Planogram?.Segments.ElementAtOrDefault(CurrentIndex);
     private string? CameraError => _cameraError;
     private bool IsCapturing => _isCapturing;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && Planogram is not null && CurrentSegment is not null)
+        if (firstRender && Planogram is not null && Planogram.NumberOfSegments > 0)
         {
             _dotNetRef = DotNetObjectReference.Create(this);
             await StartCameraAsync();
@@ -71,7 +78,7 @@
 
     private async Task CapturePhoto()
     {
-        if (CurrentSegment is null || Planogram is null || _isCapturing) return;
+        if (Planogram is null || _isCapturing) return;
         _isCapturing = true;
         StateHasChanged();
         try
@@ -88,8 +95,9 @@
     [JSInvokable]
     public void OnPhotoCaptured(string base64ImageData)
     {
-        if (Planogram is null || CurrentSegment is null) return;
-        PhotoStore.StorePhoto(Planogram.Id, CurrentSegment.Id, base64ImageData);
+        if (Planogram is null) return;
+        var segmentNumber = CurrentIndex + 1;
+        PhotoStore.StorePhoto(Planogram.Id, segmentNumber, base64ImageData);
         InvokeAsync(async () =>
         {
             await OnSegmentCaptured.InvokeAsync(CurrentIndex);
